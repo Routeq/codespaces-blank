@@ -824,8 +824,8 @@
         const playAll = async () => {
             try {
                 await audio.play();
-                await video.play();
                 setPlayState(true);
+                video.play().catch(() => null);
             } catch (error) {
                 setPlayState(false);
             }
@@ -911,6 +911,14 @@
         audio.addEventListener('canplaythrough', () => {
             audioReady = true;
             tryStartPlayback();
+        });
+
+        audio.addEventListener('play', () => {
+            setPlayState(true);
+        });
+
+        audio.addEventListener('pause', () => {
+            setPlayState(false);
         });
 
         audio.addEventListener('timeupdate', () => {
