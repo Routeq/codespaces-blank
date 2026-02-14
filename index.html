@@ -777,9 +777,11 @@
 
         let isSeeking = false;
         let rafId = null;
+        let isSyncing = false;
         let audioReady = false;
         let videoReady = false;
         let userInitiated = false;
+        let lastVolumeValue = Number(volumeInput.value) || 0.8;
         const hasVideoSource = Boolean(video.querySelector('source')?.getAttribute('src'));
 
         const formatTime = (time) => {
@@ -797,6 +799,7 @@
         };
 
         const syncMedia = () => {
+            if (!hasVideoSource) return;
             if (!audio.duration) return;
             const drift = Math.abs(video.currentTime - audio.currentTime);
             if (drift > 0.12) {
@@ -818,6 +821,20 @@
             const percent = value * 100;
             volumeFill.style.width = `${percent}%`;
             volumeKnob.style.left = `${percent}%`;
+        };
+
+        const setMuted = (isMuted) => {
+            audio.muted = isMuted;
+            if (isMuted) {
+                lastVolumeValue = Number(volumeInput.value) || lastVolumeValue;
+                volumeInput.value = 0;
+                updateVolume(0);
+            } else {
+                const restored = Number(lastVolumeValue) || 0.8;
+                volumeInput.value = restored;
+                audio.volume = restored;
+                updateVolume(restored);
+            }
         };
 
         const playAll = async () => {
@@ -849,9 +866,11 @@
             video.currentTime = time;
         };
 
-        const scheduleSync = () => {
-            if (rafId) cancelAnimationFrame(rafId);
+        const startSyncLoop = () => {
+            if (isSyncing) return;
+            isSyncing = true;
             const loop = () => {
+                if (!isSyncing) return;
                 if (!isSeeking) {
                     updateProgress();
                     syncMedia();
@@ -859,6 +878,12 @@
                 rafId = requestAnimationFrame(loop);
             };
             loop();
+        };
+
+        const stopSyncLoop = () => {
+            isSyncing = false;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = null;
         };
 
         playPause.addEventListener('click', () => {
@@ -899,8 +924,18 @@
 
         volumeInput.addEventListener('input', (event) => {
             const value = Number(event.target.value);
+            if (audio.muted && value > 0) {
+                audio.muted = false;
+            }
+            lastVolumeValue = value;
             audio.volume = value;
             updateVolume(value);
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                setMuted(!audio.muted);
+            }
         });
 
         audio.addEventListener('loadedmetadata', () => {
@@ -915,14 +950,16 @@
 
         audio.addEventListener('play', () => {
             setPlayState(true);
+            startSyncLoop();
         });
 
         audio.addEventListener('pause', () => {
             setPlayState(false);
+            stopSyncLoop();
         });
 
         audio.addEventListener('timeupdate', () => {
-            if (!isSeeking) updateProgress();
+            if (!isSeeking && !isSyncing) updateProgress();
         });
 
         audio.addEventListener('waiting', () => {
@@ -956,7 +993,6 @@
         window.addEventListener('load', () => {
             audio.volume = Number(volumeInput.value);
             updateVolume(audio.volume);
-            scheduleSync();
             audio.loop = true;
             audio.load();
             video.load();
