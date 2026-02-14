@@ -503,6 +503,16 @@
             width: 0%;
             background: linear-gradient(to right, white, rgba(255, 255, 255, 0.1));
             box-shadow: 0px 0px 18px 0px rgba(215, 180, 106, 0.55);
+            animation: loading-progress 10s linear infinite;
+        }
+
+        @keyframes loading-progress {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
         }
 
         .loading-message {
@@ -765,6 +775,8 @@
 
         let isSeeking = false;
         let rafId = null;
+        let audioReady = false;
+        let videoReady = false;
 
         const formatTime = (time) => {
             if (!Number.isFinite(time)) return '0:00';
@@ -811,6 +823,12 @@
                 setPlayState(true);
             } catch (error) {
                 setPlayState(false);
+            }
+        };
+
+        const tryStartPlayback = () => {
+            if (audioReady && videoReady) {
+                playAll();
             }
         };
 
@@ -885,6 +903,11 @@
             updateProgress();
         });
 
+        audio.addEventListener('canplaythrough', () => {
+            audioReady = true;
+            tryStartPlayback();
+        });
+
         audio.addEventListener('timeupdate', () => {
             if (!isSeeking) updateProgress();
         });
@@ -907,12 +930,19 @@
             syncMedia();
         });
 
+        video.addEventListener('canplaythrough', () => {
+            videoReady = true;
+            tryStartPlayback();
+        });
+
         window.addEventListener('load', () => {
             audio.volume = Number(volumeInput.value);
             updateVolume(audio.volume);
             scheduleSync();
             audio.loop = true;
-            playAll();
+            audio.load();
+            video.load();
+            tryStartPlayback();
         });
 
         const resumeOnInteract = () => {
