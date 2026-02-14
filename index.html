@@ -597,14 +597,11 @@
 <body>
     <div class="container">
         <!-- Background Video -->
-        <video class="background-video" id="bgVideo" playsinline muted loop preload="auto">
-            <source src="assets/loading-video.mp4" type="video/mp4">
-        </video>
+        <video class="background-video" id="bgVideo" playsinline muted loop preload="auto"></video>
 
         <!-- Background Audio -->
         <audio id="bgAudio" preload="auto">
             <source src="assets/loading-audio.mp3" type="audio/mpeg">
-            <source src="public/assets/loading-audio.mp3" type="audio/mpeg">
         </audio>
         
         <!-- Overlay -->
@@ -699,7 +696,7 @@
                         <p class="artist-name">Ybcdul</p>
                     </div>
                     <div class="volume-control">
-                        <img class="control-icon" src="https://img.icons8.com/ios-filled/50/ffffff/speaker.png" alt="Volume">
+                        <img class="control-icon" src="assets/speaker.png" alt="Volume">
                         <div class="volume-bar">
                             <div class="volume-fill"></div>
                             <div class="volume-knob"></div>
@@ -723,13 +720,13 @@
                 <div class="player-controls">
                     <div class="control-buttons">
                         <button class="control-button" id="skipBack" aria-label="Back 10 seconds">
-                            <img class="control-icon rotate-180" src="https://img.icons8.com/ios-filled/50/ffffff/fast-forward.png" alt="Previous">
+                            <img class="control-icon rotate-180" src="assets/fast-forward.png" alt="Previous">
                         </button>
                         <button class="control-button" id="playPause" aria-label="Play or pause">
-                            <img class="control-icon" id="playPauseIcon" src="public/assets/pause.png" alt="Pause">
+                            <img class="control-icon" id="playPauseIcon" src="assets/pause.png" alt="Pause">
                         </button>
                         <button class="control-button" id="skipForward" aria-label="Forward 10 seconds">
-                            <img class="control-icon" src="https://img.icons8.com/ios-filled/50/ffffff/fast-forward.png" alt="Next">
+                            <img class="control-icon" src="assets/fast-forward.png" alt="Next">
                         </button>
                     </div>
                 </div>
@@ -741,12 +738,12 @@
             <div class="bottom-left">
                 <div class="social-icons">
                     <a href="https://discord.gg/7thzone" target="_blank" rel="noopener noreferrer" aria-label="Join Discord">
-                        <img class="social-icon" src="public/assets/discord.png" alt="Discord">
+                        <img class="social-icon" src="assets/discord.png" alt="Discord">
                     </a>
                     <a href="https://7thzonerp.fandom.com/wiki/7thZoneRP_Wiki" target="_blank" rel="noopener noreferrer" aria-label="Visit website">
-                        <img class="social-icon" src="public/assets/website.png" alt="Website">
+                        <img class="social-icon" src="assets/website.png" alt="Website">
                     </a>
-                    <img class="social-icon" src="src/assets/99d6b896fe9c5148dd844fc908e6c0a7db0da586.png" alt="Social">
+                    <img class="social-icon" src="assets/social.png" alt="Social">
                 </div>
             </div>
             <div class="bottom-center">
@@ -782,6 +779,8 @@
         let rafId = null;
         let audioReady = false;
         let videoReady = false;
+        let userInitiated = false;
+        const hasVideoSource = Boolean(video.querySelector('source')?.getAttribute('src'));
 
         const formatTime = (time) => {
             if (!Number.isFinite(time)) return '0:00';
@@ -792,8 +791,8 @@
 
         const setPlayState = (isPlaying) => {
             playPauseIcon.src = isPlaying
-                ? 'public/assets/pause.png'
-                : 'https://img.icons8.com/ios-filled/50/ffffff/play--v1.png';
+                ? 'assets/pause.png'
+                : 'assets/play.png';
             playPauseIcon.alt = isPlaying ? 'Pause' : 'Play';
         };
 
@@ -832,7 +831,7 @@
         };
 
         const tryStartPlayback = () => {
-            if (audioReady && videoReady) {
+            if (audioReady && (!hasVideoSource || videoReady)) {
                 playAll();
             }
         };
@@ -863,6 +862,7 @@
         };
 
         playPause.addEventListener('click', () => {
+            userInitiated = true;
             if (audio.paused) {
                 playAll();
             } else {
@@ -948,6 +948,11 @@
             tryStartPlayback();
         });
 
+        video.addEventListener('error', () => {
+            videoReady = true;
+            tryStartPlayback();
+        });
+
         window.addEventListener('load', () => {
             audio.volume = Number(volumeInput.value);
             updateVolume(audio.volume);
@@ -960,6 +965,11 @@
         });
 
         const resumeOnInteract = () => {
+            if (userInitiated) {
+                window.removeEventListener('click', resumeOnInteract);
+                window.removeEventListener('touchstart', resumeOnInteract);
+                return;
+            }
             if (audio.paused) {
                 playAll();
             }
