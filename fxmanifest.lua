@@ -1,10 +1,10 @@
-fx_version 'cerulean'
+fx_version("cerulean")
 
-game 'gta5'
+game("gta5")
 
-ui_page 'index.html'
+ui_page("index.html")
 
-files {
-  'index.html',
-  'public/assets/*'
-}
+files({
+	"index.html",
+	"public/assets/*",
+})
