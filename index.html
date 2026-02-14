@@ -726,7 +726,7 @@
                             <img class="control-icon rotate-180" src="https://img.icons8.com/ios-filled/50/ffffff/fast-forward.png" alt="Previous">
                         </button>
                         <button class="control-button" id="playPause" aria-label="Play or pause">
-                            <img class="control-icon" id="playPauseIcon" src="https://img.icons8.com/ios-filled/50/ffffff/play--v1.png" alt="Play">
+                            <img class="control-icon" id="playPauseIcon" src="public/assets/pause.png" alt="Pause">
                         </button>
                         <button class="control-button" id="skipForward" aria-label="Forward 10 seconds">
                             <img class="control-icon" src="https://img.icons8.com/ios-filled/50/ffffff/fast-forward.png" alt="Next">
@@ -741,7 +741,7 @@
             <div class="bottom-left">
                 <div class="social-icons">
                     <a href="https://discord.gg/7thzone" target="_blank" rel="noopener noreferrer" aria-label="Join Discord">
-                        <img class="social-icon" src="public/assets/discord.pngg" alt="Discord">
+                        <img class="social-icon" src="public/assets/discord.png" alt="Discord">
                     </a>
                     <a href="https://7thzonerp.fandom.com/wiki/7thZoneRP_Wiki" target="_blank" rel="noopener noreferrer" aria-label="Visit website">
                         <img class="social-icon" src="public/assets/website.png" alt="Website">
@@ -792,7 +792,7 @@
 
         const setPlayState = (isPlaying) => {
             playPauseIcon.src = isPlaying
-                ? 'https://img.icons8.com/ios-filled/50/ffffff/pause--v1.png'
+                ? 'public/assets/pause.png'
                 : 'https://img.icons8.com/ios-filled/50/ffffff/play--v1.png';
             playPauseIcon.alt = isPlaying ? 'Pause' : 'Play';
         };
@@ -947,6 +947,7 @@
             audio.loop = true;
             audio.load();
             video.load();
+            setPlayState(true);
             tryStartPlayback();
         });
 
