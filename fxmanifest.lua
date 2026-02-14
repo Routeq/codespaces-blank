@@ -6,5 +6,5 @@ ui_page("index.html")
 
 files({
 	"index.html",
-	"public/assets/*",
+	"assets/**",
 })
