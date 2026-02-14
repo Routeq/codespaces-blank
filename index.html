@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>7th Zone - Loading</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&family=Oswald:wght@400;500&family=Arimo&display=swap" rel="stylesheet">
+    <meta name="color-scheme" content="dark">
     <style>
         * {
             margin: 0;
@@ -15,11 +13,15 @@
         }
 
         body {
-            font-family: 'Rajdhani', sans-serif;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
             background: #000;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
+        }
+
+        body.is-booting {
+            background: #000;
         }
 
         .container {
@@ -28,6 +30,64 @@
             min-height: 100vh;
             overflow: hidden;
             background: #000;
+        }
+
+        .app-shell {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        body.is-booting .app-shell {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        body.is-ready .app-shell {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body.is-closing .app-shell {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.is-closing .boot-overlay {
+            opacity: 0;
+        }
+
+        .boot-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: radial-gradient(circle at top, rgba(18, 22, 28, 0.55), rgba(0, 0, 0, 0.95));
+            color: #eef2f6;
+            z-index: 5;
+            transition: opacity 0.5s ease;
+        }
+
+        body.is-ready .boot-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .boot-title {
+            font-family: "Impact", "Arial Black", sans-serif;
+            font-size: clamp(1.75rem, 4vw, 2.75rem);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .boot-subtitle {
+            color: #8c96a3;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
         }
 
         .background-image,
@@ -88,7 +148,7 @@
             font-size: clamp(1.5rem, 2.2vw, 2rem);
             font-weight: 500;
             letter-spacing: 3.98px;
-            font-family: 'Oswald', sans-serif;
+            font-family: "Impact", "Arial Black", sans-serif;
         }
 
         .subtitle {
@@ -228,14 +288,14 @@
             font-size: 0.75rem;
             letter-spacing: 2.62px;
             margin-bottom: 0.5rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: "Impact", "Arial Black", sans-serif;
         }
 
         .hero-title {
             font-size: clamp(2.25rem, 5vw, 3.75rem);
             letter-spacing: 4.3px;
             margin-bottom: 1rem;
-            font-family: 'Oswald', sans-serif;
+            font-family: "Impact", "Arial Black", sans-serif;
         }
 
         .hero-title-white {
@@ -306,7 +366,7 @@
             font-size: 0.625rem;
             letter-spacing: 1.66px;
             margin-bottom: 0.75rem;
-            font-family: 'Arimo', sans-serif;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         }
 
         .progress-bar {
@@ -356,7 +416,7 @@
             color: white;
             font-size: 0.5rem;
             letter-spacing: 1.66px;
-            font-family: 'Arimo', sans-serif;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         }
 
         .control-buttons {
@@ -594,10 +654,10 @@
         }
     </style>
 </head>
-<body>
+<body class="is-booting">
     <div class="container">
         <!-- Background Video -->
-        <video class="background-video" id="bgVideo" playsinline muted loop preload="auto">
+        <video class="background-video" id="bgVideo" playsinline muted loop preload="metadata">
             <source src="assets/loading-video.mp4" type="video/mp4">
         </video>
 
@@ -606,11 +666,17 @@
             <source src="assets/loading-audio.mp3" type="audio/mpeg">
         </audio>
         
-        <!-- Overlay -->
-        <div class="overlay"></div>
+        <div class="boot-overlay" aria-hidden="true">
+            <div class="boot-title">7th Zone</div>
+            <div class="boot-subtitle">Loading Assets</div>
+        </div>
 
-        <!-- Main Layout -->
-        <div class="main-layout">
+        <div class="app-shell">
+            <!-- Overlay -->
+            <div class="overlay"></div>
+
+            <!-- Main Layout -->
+            <div class="main-layout">
             <!-- Left Sidebar -->
             <aside class="sidebar">
                 <!-- Header -->
@@ -687,10 +753,10 @@
                     </p>
                 </div>
             </main>
-        </div>
+            </div>
 
-        <!-- Music Player -->
-        <div class="music-player">
+            <!-- Music Player -->
+            <div class="music-player">
             <div class="player-container">
                 <div class="player-top">
                     <div class="player-meta">
@@ -733,10 +799,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
 
-        <!-- Bottom Bar -->
-        <div class="bottom-bar">
+            <!-- Bottom Bar -->
+            <div class="bottom-bar">
             <div class="bottom-left">
                 <div class="social-icons">
                     <a href="https://discord.gg/7thzone" target="_blank" rel="noopener noreferrer" aria-label="Join Discord">
@@ -759,10 +825,12 @@
             <div class="bottom-right">
                 <p class="loading-controls">ESC • MUTE</p>
             </div>
+            </div>
         </div>
     </div>
 
     <script>
+        window.addEventListener('DOMContentLoaded', () => {
         const video = document.getElementById('bgVideo');
         const audio = document.getElementById('bgAudio');
         const playPause = document.getElementById('playPause');
@@ -783,8 +851,19 @@
         let audioReady = false;
         let videoReady = false;
         let userInitiated = false;
+        let isClosing = false;
         let lastVolumeValue = Number(volumeInput.value) || 0.8;
         const hasVideoSource = Boolean(video.querySelector('source')?.getAttribute('src'));
+        const closeLoadingScreen = () => {
+            if (isClosing) return;
+            isClosing = true;
+            pauseAll();
+            stopSyncLoop();
+            document.body.classList.add('is-closing');
+            window.setTimeout(() => {
+                document.body.style.display = 'none';
+            }, 700);
+        };
 
         const formatTime = (time) => {
             if (!Number.isFinite(time)) return '0:00';
@@ -843,7 +922,9 @@
             try {
                 await audio.play();
                 setPlayState(true);
-                video.play().catch(() => null);
+                if (hasVideoSource) {
+                    video.play().catch(() => null);
+                }
             } catch (error) {
                 setPlayState(false);
             }
@@ -856,7 +937,9 @@
         };
 
         const pauseAll = () => {
-            video.pause();
+            if (hasVideoSource) {
+                video.pause();
+            }
             audio.pause();
             setPlayState(false);
         };
@@ -865,7 +948,9 @@
             if (!audio.duration) return;
             const time = (percent / 100) * audio.duration;
             audio.currentTime = time;
-            video.currentTime = time;
+            if (hasVideoSource) {
+                video.currentTime = time;
+            }
         };
 
         const startSyncLoop = () => {
@@ -900,13 +985,17 @@
         skipBack.addEventListener('click', () => {
             const target = Math.max(0, audio.currentTime - 10);
             audio.currentTime = target;
-            video.currentTime = target;
+            if (hasVideoSource) {
+                video.currentTime = target;
+            }
         });
 
         skipForward.addEventListener('click', () => {
             const target = Math.min(audio.duration || 0, audio.currentTime + 10);
             audio.currentTime = target;
-            video.currentTime = target;
+            if (hasVideoSource) {
+                video.currentTime = target;
+            }
         });
 
         progressInput.addEventListener('input', (event) => {
@@ -940,6 +1029,14 @@
             }
         });
 
+        window.addEventListener('message', (event) => {
+            const data = event.data || {};
+            const action = data.action || data.type || '';
+            if (action === 'close' || action === 'hide' || action === 'done') {
+                closeLoadingScreen();
+            }
+        });
+
         audio.addEventListener('loadedmetadata', () => {
             durationTimeLabel.textContent = formatTime(audio.duration);
             updateProgress();
@@ -965,11 +1062,12 @@
         });
 
         audio.addEventListener('waiting', () => {
+            if (!hasVideoSource) return;
             video.pause();
         });
 
         audio.addEventListener('playing', () => {
-            if (audio.paused) return;
+            if (audio.paused || !hasVideoSource) return;
             video.play().catch(() => null);
         });
 
@@ -992,18 +1090,25 @@
             tryStartPlayback();
         });
 
-        window.addEventListener('load', () => {
+        window.requestAnimationFrame(() => {
+            document.body.classList.remove('is-booting');
+            document.body.classList.add('is-ready');
+        });
+
+        window.setTimeout(() => {
             audio.volume = Number(volumeInput.value);
             updateVolume(audio.volume);
             audio.loop = true;
             audio.load();
-            video.load();
+            if (hasVideoSource) {
+                video.load();
+            }
             setPlayState(true);
             tryStartPlayback();
-        });
+        }, 50);
 
         const resumeOnInteract = () => {
-            if (userInitiated) {
+            if (isClosing || userInitiated) {
                 window.removeEventListener('click', resumeOnInteract);
                 window.removeEventListener('touchstart', resumeOnInteract);
                 return;
@@ -1017,6 +1122,7 @@
 
         window.addEventListener('click', resumeOnInteract);
         window.addEventListener('touchstart', resumeOnInteract);
+        });
     </script>
 </body>
 </html>
